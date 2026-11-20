@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScholarQuest – GrantGlide</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: #3b2a5c;
+    font-family: 'Zen Maru Gothic', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ffd9ec, #e2d4ff, #cfe8ff, #ffe3f1);
+    background-size: 300% 300%; animation: bg 18s ease infinite;
+  }
+  @keyframes bg { 50% { background-position: 100% 50%; } }
+  .hide { display: none !important; }
+
+  /* ---------- sakura petals ---------- */
+  .petal { position: fixed; top: -30px; z-index: 0; pointer-events: none; opacity: .8;
+    background: radial-gradient(circle at 30% 30%, #fff, #ffb3d1); border-radius: 150% 0 150% 0;
+    animation: fall linear infinite; }
+  @keyframes fall {
+    0%   { transform: translateY(-5vh) translateX(0) rotate(0); }
+    50%  { transform: translateY(55vh) translateX(70px) rotate(200deg); }
+    100% { transform: translateY(110vh) translateX(-30px) rotate(400deg); }
+  }
+
+  /* ---------- header ---------- */
+  header { position: relative; z-index: 1; text-align: center; padding: 30px 12px 10px; animation: drop .8s both; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-30px); } }
+  .jp { display: inline-block; background: #fff; padding: 4px 16px; border-radius: 999px; color: #d6347c; font-weight: 700; letter-spacing: 3px; box-shadow: 0 4px 14px rgba(214,52,124,.25); }
+  h1 { margin: 10px 0 4px; font-size: clamp(2.4rem, 8vw, 4rem); font-weight: 900; color: #fff;
+       text-shadow: 3px 3px 0 #d6347c, 6px 6px 0 #7b3dff; letter-spacing: 1px; }
+  h1 span { color: #fff3a8; }
+  header p { margin: 0; font-weight: 500; }
+  .mascot { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 14px; }
+  .fox { font-size: 3.4rem; animation: bounce 1.6s ease-in-out infinite; }
+  @keyframes bounce { 50% { transform: translateY(-12px) rotate(-6deg); } }
+  .bubble { position: relative; background: #fff; padding: 10px 16px; border-radius: 18px; font-weight: 700; max-width: 320px; box-shadow: 0 6px 16px rgba(123,61,255,.2); animation: pop .4s; }
+  .bubble::before { content: ''; position: absolute; left: -10px; top: 50%; margin-top: -8px; border: 8px solid transparent; border-right-color: #fff; border-left: 0; }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+
+  main { position: relative; z-index: 1; max-width: 1100px; margin: auto; padding: 14px; }
+  .panel { background: rgba(255,255,255,.75); backdrop-filter: blur(8px); border: 3px solid #fff; border-radius: 24px; padding: 20px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(123,61,255,.15); animation: up .6s both; }
+  @keyframes up { from { opacity: 0; transform: translateY(24px); } }
+  .panel h2 { margin: 0 0 12px; }
+
+  /* ---------- form ---------- */
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  label { font-weight: 700; font-size: .85rem; display: block; }
+  input, select { width: 100%; margin-top: 4px; padding: 10px 12px; border-radius: 14px; border: 2px solid #e5d4ff; background: #fff; font-family: inherit; font-size: .95rem; color: #3b2a5c; outline: none; transition: .2s; }
+  input:focus, select:focus { border-color: #ff6fb1; box-shadow: 0 0 0 4px rgba(255,111,177,.25); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+  .btn { border: 0; padding: 11px 22px; border-radius: 999px; font-family: inherit; font-weight: 900; font-size: .95rem; cursor: pointer; color: #fff;
+         background: linear-gradient(135deg, #ff6fb1, #8f5bff); box-shadow: 0 6px 16px rgba(143,91,255,.4); transition: transform .2s; }
+  .btn:hover { transform: translateY(-3px) scale(1.06); }
+  .btn:active { transform: scale(.95); }
+  .btn.ghost { background: #fff; color: #8f5bff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .btn.sm { padding: 7px 14px; font-size: .8rem; margin-top: 8px; }
+  .btn.green { background: linear-gradient(135deg, #34d399, #3b9cff); }
+
+  /* ---------- tabs & pills ---------- */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .tab { border: 0; padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,.7); font-family: inherit; font-weight: 900; color: #7b5aa8; cursor: pointer; transition: .2s; }
+  .tab.active { background: linear-gradient(135deg, #ff6fb1, #8f5bff); color: #fff; box-shadow: 0 6px 14px rgba(143,91,255,.4); }
+  .tab b { background: #ffe066; color: #5a3d00; border-radius: 999px; padding: 1px 8px; margin-left: 4px; font-size: .75rem; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .pill { border: 2px solid #fff; background: rgba(255,255,255,.6); border-radius: 999px; padding: 6px 14px; font-family: inherit; font-weight: 700; color: #7b5aa8; cursor: pointer; transition: .2s; }
+  .pill:hover { transform: scale(1.08); }
+  .pill.on { background: #8f5bff; color: #fff; }
+  .chk { display: flex; align-items: center; gap: 6px; font-size: .85rem; cursor: pointer; }
+  .chk input { width: auto; margin: 0; }
+
+  /* ---------- scholarship cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .card { position: relative; background: #fff; border: 3px solid #ffd0e6; border-radius: 24px; padding: 18px; cursor: pointer;
+          transition: transform .25s, box-shadow .25s; animation: up .6s both; }
+  .card:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 16px 30px rgba(255,111,177,.35); }
+  .card.near { opacity: .8; border-style: dashed; }
+  .card h3 { margin: 10px 0 2px; font-size: 1.05rem; }
+  .by { font-size: .8rem; opacity: .75; }
+  .amt { font-size: 1.7rem; font-weight: 900; color: #d6347c; margin: 6px 0; }
+  .amt small { font-size: .8rem; color: #7b5aa8; }
+  .rar { display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: .72rem; font-weight: 900; color: #fff; letter-spacing: 1px; }
+  .rar.leg { background: linear-gradient(90deg, #ffb300, #ff6fb1, #ffb300); background-size: 200%; animation: shine 2s linear infinite; }
+  .rar.epic { background: #8f5bff; }
+  .rar.rare { background: #3b9cff; }
+  @keyframes shine { to { background-position: 200%; } }
+  .tags span { display: inline-block; background: #f1e8ff; color: #6a3fc9; border-radius: 10px; padding: 2px 9px; font-size: .72rem; font-weight: 700; margin: 0 4px 4px 0; }
+  .cdrow { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .cd { font-weight: 900; font-variant-numeric: tabular-nums; font-size: .9rem; }
+  .u { font-size: .72rem; font-weight: 900; padding: 3px 10px; border-radius: 999px; }
+  .u.hot { background: #ff4d6d; color: #fff; animation: pulse 1s infinite; }
+  .u.soon { background: #ffe066; color: #5a3d00; }
+  .u.open { background: #c8f7dc; color: #107a45; }
+  .u.closed { background: #ddd; }
+  @keyframes pulse { 50% { transform: scale(1.12); } }
+  .bar { height: 10px; background: #efe5ff; border-radius: 10px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ff6fb1, #8f5bff); border-radius: 10px; animation: grow 1s; }
+  .bar.big { height: 14px; }
+  @keyframes grow { from { width: 0 !important; } }
+  .crit, .docs-line { font-size: .8rem; margin-top: 4px; font-weight: 700; }
+  .fail { font-size: .78rem; color: #d6246e; margin-top: 4px; font-weight: 700; }
+  .warn { background: #fff3c4; border: 2px dashed #ffb300; color: #7a4b00; border-radius: 12px; padding: 6px 10px; font-size: .78rem; font-weight: 700; margin-top: 8px; }
+  .warn.big { font-size: .9rem; padding: 10px 14px; margin-bottom: 10px; }
+  .empty { grid-column: 1 / -1; text-align: center; padding: 40px 10px; font-weight: 700; background: rgba(255,255,255,.6); border-radius: 20px; }
+
+  /* ---------- application board ---------- */
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .col { background: rgba(255,255,255,.6); border-radius: 20px; padding: 12px; min-height: 160px; }
+  .col h3 { margin: 0 0 10px; font-size: .95rem; }
+  .col h3 b { background: #8f5bff; color: #fff; border-radius: 999px; padding: 1px 8px; font-size: .75rem; }
+  .mini { background: #fff; border-radius: 16px; padding: 10px; margin-bottom: 10px; border: 2px solid #ffd0e6; animation: pop .3s; }
+  .mini a { font-weight: 900; cursor: pointer; font-size: .9rem; }
+  .mini a:hover { color: #d6347c; }
+  .mini select { padding: 5px; font-size: .78rem; margin-top: 6px; }
+  .none { opacity: .5; text-align: center; padding: 14px; font-size: .85rem; }
+
+  /* ---------- documents ---------- */
+  ul.docs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+  .doc { background: #faf5ff; border-radius: 14px; padding: 9px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 2px solid transparent; }
+  .doc label { display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; flex: 1; min-width: 160px; }
+  .doc input { width: auto; margin: 0; }
+  .doc.ready { border-color: #b8f0d2; }
+  .doc.expiring { background: #fff6cc; border-color: #ffd54a; }
+  .doc.missing { border-color: #ffc2d6; }
+  .exp { font-size: .78rem; color: #8a5a00; font-weight: 700; }
+  .mini-btn { border: 0; background: #ffb300; color: #fff; border-radius: 999px; padding: 4px 12px; font-family: inherit; font-weight: 900; font-size: .75rem; cursor: pointer; }
+
+  /* ---------- modal ---------- */
+  .modal { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(59,42,92,.6); backdrop-filter: blur(4px); padding: 12px; }
+  .modal.open { display: flex; }
+  .mbox { position: relative; background: #fff; width: min(680px, 100%); max-height: 92vh; overflow: auto; border-radius: 26px; border: 4px solid #ffd0e6; padding: 24px; animation: zoom .35s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes zoom { from { transform: scale(.6) rotate(-3deg); opacity: 0; } }
+  .mbox h2 { margin: 8px 0 2px; }
+  .mbox h3 { margin: 18px 0 6px; }
+  .x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #ffe0ee; font-size: 1rem; cursor: pointer; transition: .3s; }
+  .x:hover { transform: rotate(180deg); background: #ff6fb1; color: #fff; }
+  .rules { list-style: none; padding: 0; margin: 0; }
+  .rules li { padding: 3px 0; font-weight: 700; font-size: .9rem; }
+  .rules .ok { color: #107a45; } .rules .no { color: #d6246e; }
+  .info { background: #f6f0ff; border-radius: 14px; padding: 10px 14px; font-size: .9rem; line-height: 1.5; margin-top: 8px; }
+  .note { font-size: .75rem; opacity: .7; text-align: center; margin: 24px 0 10px; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: #3b2a5c; color: #fff; padding: 12px 22px; border-radius: 999px; font-weight: 700; z-index: 50; transition: transform .4s cubic-bezier(.2,1.5,.4,1); }
+  #toast.show { transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="petals"></div>
+
+<header>
+  <div class="jp">奨学金クエスト</div>
+  <h1>Scholar<span>Quest</span></h1>
+  <p>Create your hero. We'll find the scholarships you can win! ✨</p>
+  <div class="mascot">
+    <div class="fox">🦊</div>
+    <div class="bubble" id="say">Yoroshiku! Create your hero to begin 🌸</div>
+  </div>
+</header>
+
+<main>
+  <!-- STEP 1: student intake -->
+  <form class="panel" id="form" onsubmit="startQuest(event)">
+    <h2>🎒 Create Your Hero</h2>
+    <div class="fields">
+      <label>Nickname <input id="fName" placeholder="Sakura"></label>
+      <label>Gender
+        <select id="fGender"><option>Female</option><option>Male</option><option>Other</option></select></label>
+      <label>Category
+        <select id="fCaste"><option value="General">General</option><option value="EWS">EWS</option><option value="BC">BC / OBC</option><option value="SC">SC</option><option value="ST">ST</option></select></label>
+      <label>State of domicile
+        <select id="fState"><option>Telangana</option><option>Andhra Pradesh</option><option>Karnataka</option><option>Tamil Nadu</option><option>Kerala</option><option>Maharashtra</option><option>West Bengal</option><option>Uttar Pradesh</option><option>Delhi</option><option>Other</option></select></label>
+      <label>Degree
+        <select id="fDegree"><option>Engineering</option><option>Medical</option><option>Science</option><option>Management</option><option>Arts/Commerce</option></select></label>
+      <label>Family income (₹ lakhs / year)
+        <input id="fIncome" type="number" min="0" step="0.1" required placeholder="1.5"></label>
+      <label>Current GPA (out of 10)
+        <input id="fGpa" type="number" min="0" max="10" step="0.1" required placeholder="8.5"></label>
+    </div>
+    <div class="row">
+      <button class="btn" type="submit">⚔️ Start Quest</button>
+      <button class="btn ghost" type="button" onclick="demoHero()">✨ Load demo hero</button>
+    </div>
+  </form>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab_quest" onclick="setView('quest')">⚔️ Quest Board</button>
+    <button class="tab" id="tab_track" onclick="setView('track')">📜 My Applications <b id="cntTrack">0</b></button>
+    <button class="tab" id="tab_vault" onclick="setView('vault')">🗂️ Document Vault <b id="cntVault">0</b></button>
+  </div>
+
+  <!-- quests -->
+  <section id="questView">
+    <div class="pills" id="pills"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- applications -->
+  <section id="trackView" class="hide">
+    <div id="conf"></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- vault -->
+  <section id="vaultView" class="hide">
+    <div class="panel"><h2>🗂️ My Document Vault</h2><div id="vaultBody"></div></div>
+  </section>
+
+  <p class="note">Sample data for a student project. Always confirm amounts, rules and deadlines on the official portal.</p>
+</main>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="mbox" id="mbox"></div></div>
+<div id="toast"></div>
+
+<script>
+// ================= DATA =================
+// days/hrs = time left from when the page opens (so the countdown always works).
+// Later you can swap these for real dates.
+const schemes = [
+  { id:1, name:"Telangana ePASS Post-Matric (BC)", body:"Telangana BC Welfare Dept", tags:["Government","Need-Based"],
+    amount:35000, income:2, castes:["BC"], state:"Telangana", days:41, group:"govt",
+    docs:["Income Certificate","Caste Certificate","Domicile Certificate","Marksheets","Bonafide Certificate"],
+    renewal:"Renewed every year after passing the previous year with required attendance.", link:"https://telanganaepass.cgg.gov.in" },
+  { id:2, name:"Post-Matric Scholarship for SC Students", body:"Ministry of Social Justice (NSP)", tags:["Government","Need-Based"],
+    amount:50000, income:2.5, castes:["SC"], days:29, group:"govt",
+    docs:["Income Certificate","Caste Certificate","Marksheets","Bonafide Certificate","Aadhaar Card"],
+    renewal:"Renewed yearly based on pass result and attendance.", link:"https://scholarships.gov.in" },
+  { id:3, name:"Post-Matric Scholarship for ST Students", body:"Ministry of Tribal Affairs (NSP)", tags:["Government","Need-Based"],
+    amount:50000, income:2.5, castes:["ST"], days:29, group:"govt",
+    docs:["Income Certificate","Caste Certificate","Marksheets","Bonafide Certificate","Aadhaar Card"],
+    renewal:"Renewed yearly based on pass result and attendance.", link:"https://scholarships.gov.in" },
+  { id:4, name:"Central Sector Scheme of Scholarship", body:"Ministry of Education (NSP)", tags:["Government","Merit-Based"],
+    amount:20000, income:4.5, gpa:8, days:19, group:"govt",
+    docs:["Income Certificate","Marksheets","Bonafide Certificate","Aadhaar Card","Bank Passbook"],
+    renewal:"Renewable each year if you pass with minimum marks.", link:"https://scholarships.gov.in" },
+  { id:5, name:"Pragati Scholarship for Girls", body:"AICTE, Govt. of India", tags:["Government","Women in STEM"],
+    amount:50000, income:8, gender:"Female", degrees:["Engineering"], days:12, hrs:5,
+    docs:["Income Certificate","Marksheets","Bonafide Certificate","Aadhaar Card","Bank Passbook"],
+    renewal:"Renewable every year for the course duration if you pass the previous year.", link:"https://www.aicte-india.org/schemes/students-development-schemes" },
+  { id:6, name:"Kotak Kanya Scholarship", body:"Kotak Education Foundation", tags:["Merit-Based","Women in STEM"],
+    amount:150000, income:6, gender:"Female", degrees:["Engineering","Medical"], gpa:7.5, days:55,
+    docs:["Income Certificate","Marksheets","Bonafide Certificate","Aadhaar Card","Bank Passbook","Passport Photo"],
+    renewal:"Renewable yearly with good academic performance.", link:"https://www.kotakeducation.org" },
+  { id:7, name:"Reliance Foundation Undergraduate Scholarship", body:"Reliance Foundation", tags:["Merit-Based","Need-Based"],
+    amount:200000, income:15, gpa:7, days:26,
+    docs:["Marksheets","Income Certificate","Aadhaar Card","Passport Photo","Bonafide Certificate"],
+    renewal:"Renewal depends on yearly academic performance.", link:"https://www.reliancefoundation.org" },
+  { id:8, name:"HDFC Parivartan ECSS", body:"HDFC Bank", tags:["Need-Based"],
+    amount:75000, income:2.5, gpa:6, days:6,
+    docs:["Income Certificate","Marksheets","Bonafide Certificate","Bank Passbook","Aadhaar Card"],
+    renewal:"Check the official page for renewal terms.", link:"https://www.hdfcbank.com" },
+  { id:9, name:"L'Oréal India For Young Women in Science", body:"L'Oréal India", tags:["Merit-Based","Women in STEM"],
+    amount:200000, income:6, gender:"Female", degrees:["Engineering","Science","Medical"], gpa:8.5, days:70,
+    docs:["Marksheets","Income Certificate","Aadhaar Card","Passport Photo"],
+    renewal:"Awarded for the course; check the official page for conditions.", link:"https://www.foryoungwomeninscience.com" },
+  { id:10, name:"ONGC Foundation Scholarship", body:"ONGC Foundation", tags:["Government","Merit-Based"],
+    amount:48000, income:4.5, degrees:["Engineering","Medical","Management"], gpa:6, days:33,
+    docs:["Marksheets","Income Certificate","Bonafide Certificate","Bank Passbook"],
+    renewal:"Renewable yearly if marks criteria are met.", link:"https://ongcscholar.org" },
+  { id:11, name:"Swami Vivekananda Merit-cum-Means (West Bengal)", body:"Govt. of West Bengal", tags:["Government","Merit-Based"],
+    amount:60000, income:2.5, state:"West Bengal", gpa:6, days:22,
+    docs:["Income Certificate","Domicile Certificate","Marksheets","Bank Passbook","Aadhaar Card"],
+    renewal:"Renewable yearly with minimum marks.", link:"https://svmcm.wbhed.gov.in" },
+  { id:12, name:"Jagananna Vidya Deevena (Andhra Pradesh)", body:"Govt. of Andhra Pradesh", tags:["Government","Need-Based"],
+    amount:70000, income:2.5, state:"Andhra Pradesh", days:47,
+    docs:["Income Certificate","Caste Certificate","Domicile Certificate","Bonafide Certificate","Aadhaar Card"],
+    renewal:"Paid every year while you keep the required attendance.", link:"https://jnanabhumi.ap.gov.in" }
+];
+const START = Date.now();
+schemes.forEach(s => { s.hrs = s.hrs ?? (s.id * 5) % 24; s.t = START + (s.days * 24 + s.hrs) * 3600000; });
+
+const defaultVault = {                       // exp = days until the certificate expires
+  "Income Certificate": { ready:true, exp:12 },   // expiring soon -> yellow warning
+  "Caste Certificate":  { ready:false },
+  "Marksheets":         { ready:true },
+  "Bonafide Certificate":{ ready:false },
+  "Domicile Certificate":{ ready:false },
+  "Aadhaar Card":       { ready:true },
+  "Bank Passbook":      { ready:false },
+  "Passport Photo":     { ready:true }
+};
+const STAGES = ["Bookmarked","Applied","Under Review","Awarded"];
+const ICON = { "Bookmarked":"🔖", "Applied":"📨", "Under Review":"🔍", "Awarded":"🏆" };
+const FILTERS = ["All","Government","Merit-Based","Need-Based","Women in STEM"];
+
+// ================= STATE =================
+const ls = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+let profile = ls("gg_profile", null);
+let vault = ls("gg_vault", defaultVault);
+let track = ls("gg_track", {});
+let filter = "All", near = false, openId = null;
+const $ = id => document.getElementById(id);
+const byId = id => schemes.find(s => s.id === id);
+const inr = n => "₹" + n.toLocaleString("en-IN");
+
+// ================= HELPERS =================
+const rarity = a => a >= 150000 ? { c:"leg", t:"★★★ LEGENDARY" } : a >= 50000 ? { c:"epic", t:"★★ EPIC" } : { c:"rare", t:"★ RARE" };
+
+function cdText(t) {
+  const ms = t - Date.now();
+  if (ms <= 0) return "Closed";
+  const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3);
+  return `${d}d ${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;
+}
+function urg(t) {
+  const d = (t - Date.now()) / 864e5;
+  if (d <= 0) return `<span class="u closed">Closed</span>`;
+  if (d <= 7)  return `<span class="u hot">🔥 Urgent</span>`;
+  if (d <= 30) return `<span class="u soon">⏳ Closing soon</span>`;
+  return `<span class="u open">🌸 Open</span>`;
+}
+setInterval(() => document.querySelectorAll(".cd").forEach(e => e.textContent = cdText(+e.dataset.t)), 1000);
+
+function say(msg) {
+  const b = $("say"); b.textContent = msg;
+  b.style.animation = "none"; void b.offsetWidth; b.style.animation = "";
+}
+let tt;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// ================= MATCHING ENGINE =================
+// every rule gives { text, ok }. A scholarship matches when ALL rules are ok.
+function check(s, p) {
+  const r = [{ t:`Income ≤ ₹${s.income} lakh`, ok: p.income <= s.income }];
+  if (s.castes)  r.push({ t:`Category: ${s.castes.join(" / ")}`,  ok: s.castes.includes(p.caste) });
+  if (s.gender)  r.push({ t:`Gender: ${s.gender}`,                ok: p.gender === s.gender });
+  if (s.state)   r.push({ t:`Domicile: ${s.state}`,               ok: p.state === s.state });
+  if (s.degrees) r.push({ t:`Degree: ${s.degrees.join(" / ")}`,   ok: s.degrees.includes(p.degree) });
+  if (s.gpa)     r.push({ t:`GPA ≥ ${s.gpa}`,                     ok: p.gpa >= s.gpa });
+  return r;
+}
+function results() {
+  if (!profile) return [];
+  return schemes
+    .map(s => { const c = check(s, profile), ok = c.filter(x => x.ok).length; return { s, c, ok, total:c.length, pass: ok === c.length }; })
+    .filter(x => x.pass || (near && x.total - x.ok === 1))
+    .filter(x => filter === "All" || x.s.tags.includes(filter))
+    .sort((a, b) => (b.pass - a.pass) || (b.s.amount - a.s.amount));
+}
+
+// documents
+const docState = n => { const d = vault[n]; if (!d || !d.ready) return "missing"; return (d.exp != null && d.exp <= 30) ? "expiring" : "ready"; };
+const readyCount = s => s.docs.filter(n => docState(n) !== "missing").length;
+function toggleDoc(n) { vault[n] = vault[n] || {}; vault[n].ready = !vault[n].ready; sv("gg_vault", vault); refresh(); }
+function renewDoc(n) { vault[n].exp = 365; sv("gg_vault", vault); refresh(); toast("Certificate renewed ✅"); }
+function docRow(n) {
+  const st = docState(n), d = vault[n] || {};
+  const icon = { ready:"✅", expiring:"🟡", missing:"❌" }[st];
+  return `<li class="doc ${st}"><label><input type="checkbox" ${st !== "missing" ? "checked" : ""} onchange="toggleDoc('${n}')"> ${icon} ${n}</label>` +
+    (st === "expiring" ? `<span class="exp">${n} needs renewal (expires in ${d.exp} days)</span><button class="mini-btn" onclick="renewDoc('${n}')">Renewed ✓</button>` : "") + `</li>`;
+}
+
+// conflicts (schemes in the same group usually can't be availed together)
+function conflictWith(s) { return s.group ? schemes.find(o => o.id !== s.id && o.group === s.group && track[o.id]) : null; }
+
+// ================= PROFILE FORM =================
+function startQuest(e) {
+  e.preventDefault();
+  profile = {
+    name: $("fName").value.trim() || "Hero", gender: $("fGender").value, caste: $("fCaste").value,
+    state: $("fState").value, degree: $("fDegree").value,
+    income: parseFloat($("fIncome").value), gpa: parseFloat($("fGpa").value)
+  };
+  sv("gg_profile", profile);
+  setView("quest"); refresh();
+  const n = results().filter(x => x.pass).length;
+  say(`${profile.name}-san! ${n} scholarship quest${n === 1 ? "" : "s"} unlocked! Ganbatte! 🌟`);
+  $("questView").scrollIntoView({ behavior:"smooth" });
+}
+function fillForm(p) {
+  $("fName").value = p.name; $("fGender").value = p.gender; $("fCaste").value = p.caste;
+  $("fState").value = p.state; $("fDegree").value = p.degree; $("fIncome").value = p.income; $("fGpa").value = p.gpa;
+}
+function demoHero() {
+  fillForm({ name:"Sakura", gender:"Female", caste:"BC", state:"Telangana", degree:"Engineering", income:1.5, gpa:8.5 });
+  $("form").requestSubmit();
+}
+
+// ================= VIEWS =================
+function setView(v) {
+  ["quest","track","vault"].forEach(k => {
+    $(k + "View").classList.toggle("hide", k !== v);
+    $("tab_" + k).classList.toggle("active", k === v);
+  });
+}
+function setFilter(f) { filter = f; renderQuests(); }
+function setNear(v) { near = v; renderQuests(); }
+
+function card(x, i) {
+  const s = x.s, r = rarity(s.amount), tr = track[s.id], cf = conflictWith(s);
+  return `<article class="card ${x.pass ? "" : "near"}" style="animation-delay:${i * 70}ms" onclick="openModal(${s.id})">
+    <span class="rar ${r.c}">${r.t}</span>
+    <h3>${s.name}</h3>
+    <div class="by">🏛️ ${s.body}</div>
+    <div class="amt">${inr(s.amount)}<small> / year</small></div>
+    <div class="tags">${s.tags.map(t => `<span>${t}</span>`).join("")}</div>
+    <div class="cdrow">${urg(s.t)}<span class="cd" data-t="${s.t}">${cdText(s.t)}</span></div>
+    <div class="bar"><i style="width:${x.ok / x.total * 100}%"></i></div>
+    <div class="crit">${x.ok}/${x.total} criteria met</div>
+    ${x.pass ? "" : `<div class="fail">✗ ${x.c.filter(k => !k.ok).map(k => k.t).join(", ")}</div>`}
+    ${cf ? `<div class="warn">⚠ Can't be combined with ${cf.name}</div>` : ""}
+    <div class="docs-line">📄 ${readyCount(s)}/${s.docs.length} documents ready</div>
+    <button class="btn sm" onclick="event.stopPropagation();bookmark(${s.id})">${tr ? "✔ " + tr : "🔖 Bookmark"}</button>
+  </article>`;
+}
+
+function renderQuests() {
+  $("pills").innerHTML = FILTERS.map(f => `<button class="pill ${f === filter ? "on" : ""}" onclick="setFilter('${f}')">${f}</button>`).join("") +
+    `<label class="chk"><input type="checkbox" ${near ? "checked" : ""} onchange="setNear(this.checked)"> Show almost-eligible</label>`;
+  if (!profile) { $("grid").innerHTML = `<div class="empty">🌸 Create your hero above to reveal your quests!</div>`; return; }
+  const list = results();
+  $("grid").innerHTML = list.length ? list.map(card).join("") : `<div class="empty">🥲 No quests match yet. Try another filter or tick "almost-eligible".</div>`;
+}
+
+// ================= TRACKER =================
+function bookmark(id) {
+  if (track[id] && track[id] !== "Bookmarked") { openModal(id); return; }
+  if (track[id]) { delete track[id]; toast("Bookmark removed"); }
+  else { track[id] = "Bookmarked"; toast("Bookmarked 🔖"); }
+  sv("gg_track", track); refresh();
+}
+function setStage(id, v) {
+  if (v === "__remove") { delete track[id]; toast("Removed"); }
+  else {
+    track[id] = v; toast(`Moved to ${v} ${ICON[v]}`);
+    if (v === "Awarded") say("OMEDETOU!! You won a scholarship! 🎉🏆");
+  }
+  sv("gg_track", track); refresh();
+}
+function mini(s) {
+  return `<div class="mini"><a onclick="openModal(${s.id})">${s.name}</a>
+    <div>${inr(s.amount)}/yr</div>
+    <div class="cd" data-t="${s.t}">${cdText(s.t)}</div>
+    <select onchange="setStage(${s.id}, this.value)">
+      ${STAGES.map(x => `<option ${x === track[s.id] ? "selected" : ""}>${x}</option>`).join("")}
+      <option value="__remove">🗑 Remove</option></select></div>`;
+}
+function renderTrack() {
+  const ids = Object.keys(track).map(Number);
+  const groups = {};
+  ids.forEach(id => { const s = byId(id); if (s.group) (groups[s.group] = groups[s.group] || []).push(s.name); });
+  $("conf").innerHTML = Object.values(groups).filter(a => a.length > 1)
+    .map(a => `<div class="warn big">⚠ Policy conflict: ${a.join(" + ")} usually can't be availed together. Choose one!</div>`).join("");
+  $("board").innerHTML = STAGES.map(st => {
+    const mine = ids.filter(i => track[i] === st);
+    return `<div class="col"><h3>${ICON[st]} ${st} <b>${mine.length}</b></h3>${mine.map(i => mini(byId(i))).join("") || '<div class="none">— empty —</div>'}</div>`;
+  }).join("");
+}
+
+// ================= VAULT =================
+function renderVault() {
+  const names = Object.keys(vault);
+  const rdy = names.filter(n => docState(n) !== "missing").length;
+  const exp = names.filter(n => docState(n) === "expiring").length;
+  $("vaultBody").innerHTML =
+    `<div class="bar big"><i style="width:${rdy / names.length * 100}%"></i></div><p><b>${rdy}/${names.length}</b> documents ready</p>` +
+    (exp ? `<div class="warn big">🟡 ${exp} document(s) expire within 30 days. Renew from your local revenue office (MeeSeva etc.).</div>` : "") +
+    `<ul class="docs">${names.map(docRow).join("")}</ul>`;
+}
+
+// ================= MODAL (scheme inspector) =================
+function openModal(id) { openId = id; drawModal(); $("modal").classList.add("open"); }
+function closeModal() { $("modal").classList.remove("open"); openId = null; }
+function drawModal() {
+  const s = byId(openId), box = $("mbox"), y = box.scrollTop;
+  const r = rarity(s.amount), c = profile ? check(s, profile) : [], cf = conflictWith(s);
+  const rc = readyCount(s), tr = track[s.id];
+  box.innerHTML = `
+    <button class="x" onclick="closeModal()">✕</button>
+    <span class="rar ${r.c}">${r.t}</span>
+    <h2>${s.name}</h2>
+    <div class="by">🏛️ ${s.body}</div>
+    <div class="amt">${inr(s.amount)}<small> / year</small></div>
+    <div class="cdrow">${urg(s.t)}<span class="cd" data-t="${s.t}">${cdText(s.t)}</span> <small>remaining</small></div>
+    ${cf ? `<div class="warn big">⚠ Policy conflict: you've also tracked "${cf.name}". These usually can't be availed together.</div>` : ""}
+
+    ${c.length ? `<h3>🎯 Eligibility</h3><ul class="rules">${c.map(k => `<li class="${k.ok ? "ok" : "no"}">${k.ok ? "✔" : "✗"} ${k.t}</li>`).join("")}</ul>` : ""}
+
+    <h3>📋 Scheme details</h3>
+    <div class="info">💰 Award: <b>${inr(s.amount)}</b> per year<br>🏛️ Administered by: ${s.body}<br>🔁 Renewal: ${s.renewal}</div>
+
+    <h3>📄 Document checklist (${rc}/${s.docs.length} ready)</h3>
+    <div class="bar big"><i style="width:${rc / s.docs.length * 100}%"></i></div>
+    <ul class="docs">${s.docs.map(docRow).join("")}</ul>
+
+    <div class="row">
+      <a href="${s.link}" target="_blank" rel="noopener"><button class="btn green" type="button">🌐 Official portal</button></a>
+      ${tr
+        ? `<select style="width:auto" onchange="setStage(${s.id}, this.value)">${STAGES.map(x => `<option ${x === tr ? "selected" : ""}>${x}</option>`).join("")}<option value="__remove">🗑 Remove</option></select>`
+        : `<button class="btn" onclick="setStage(${s.id},'Bookmarked')">🔖 Bookmark</button><button class="btn ghost" onclick="setStage(${s.id},'Applied')">📨 Mark as Applied</button>`}
+    </div>`;
+  box.scrollTop = y;
+}
+
+// ================= REFRESH & INIT =================
+function refresh() {
+  renderQuests(); renderTrack(); renderVault();
+  $("cntTrack").textContent = Object.keys(track).length;
+  $("cntVault").textContent = Object.keys(vault).filter(n => docState(n) === "expiring").length;
+  if (openId) drawModal();
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+// falling petals
+$("petals").innerHTML = Array.from({ length: 22 }, () => {
+  const s = 10 + Math.random() * 14;
+  return `<span class="petal" style="left:${Math.random() * 100}%;width:${s}px;height:${s}px;animation-duration:${9 + Math.random() * 10}s;animation-delay:-${Math.random() * 15}s"></span>`;
+}).join("");
+
+if (profile) { fillForm(profile); say(`Okaeri, ${profile.name}-san! Your quests are waiting 🌸`); }
+refresh();
+</script>
+</body>
+</html>
